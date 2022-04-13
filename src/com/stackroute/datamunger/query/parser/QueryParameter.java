@@ -27,18 +27,24 @@ public class QueryParameter {
 	}
 	public void setBaseQuery(String baseQuery) {this.baseQuery = baseQuery;}
 
+	private List<Restriction> restrictions;
 	public List<Restriction> getRestrictions() {
-		return null;
+		return restrictions;
 	}
+	public void setRestrictions(List<Restriction> restrictions) {this.restrictions = restrictions;}
 
+	//----------------------------------
 	public List<String> getLogicalOperators() {
 		return null;
 	}
 
+	private List<String> fields;
 	public List<String> getFields() {
-		return null;
+		return fields;
 	}
+	public void setFields(List<String> fields) {this.fields = fields;}
 
+	//----------------------------------
 	public List<AggregateFunction> getAggregateFunctions() {
 		return null;
 	}

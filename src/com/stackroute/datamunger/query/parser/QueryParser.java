@@ -44,6 +44,8 @@ public class QueryParser {
 		queryParameter.setBaseQuery(getBaseQueryLogic(queryString));
 		queryParameter.setGroupByFields(getGroupByFieldsLogic(queryString));
 		queryParameter.setOrderByFields(getOrderByFieldsLogic(queryString));
+		queryParameter.setFields(getFieldsLogic(queryString));
+		queryParameter.setRestrictions(getRestrictionsLogic(queryString));
 
 		return queryParameter;
 	}
@@ -105,7 +107,7 @@ public class QueryParser {
 		//{select winner,season,team2 from ipl.csv where season > 2014 group by winner | team1}
 		String[] splitGroupArr = splitOrderArr[0].split("group by");
 		//{select winner,season,team2 from ipl.csv where season > 2014 | winner}
-		System.out.println(qString);
+//		System.out.println(qString);
 		//loops thru array, only take after index 0 bc that is where group by fields are
 		for(int i = 0; i < splitGroupArr.length; i++){
 			if(i > 0)
@@ -125,6 +127,21 @@ public class QueryParser {
 	 * note that we might have a field containing name "from_date" or "from_hrs".
 	 * Hence, consider this while parsing.
 	 */
+	public List<String> getFieldsLogic(String qString){
+		List<String> fields = new ArrayList<>();
+		//str = "select winner,season,team2 from ipl.csv where season > 2014 group by winner"
+		String[] selectArr = qString.split("select ");
+		//{"" | winner,season,team2 from ipl.csv where season > 2014 group by winner}
+		String[] fromArr = selectArr[1].split("from");
+		//{winner,season,team2 | ipl.csv where season > 2014 group by winner}
+		String[] fieldsOnlyArr = fromArr[0].split(",");
+		//{winner | season | team2}
+
+		for(String item: fieldsOnlyArr){
+			fields.add(item.trim());
+		}
+		return fields;
+	}
 
 	/*
 	 * Extract the conditions from the query string(if exists). for each condition,
@@ -140,6 +157,15 @@ public class QueryParser {
 	 * Please consider this while parsing the conditions.
 	 * 
 	 */
+	public List<Restriction> getRestrictionsLogic(String qString){
+		Restriction restriction = new Restriction();
+		restriction.setCondition("xd");
+//		System.out.println(qString);
+		//can have multiple restrictions
+		//create a list of each restriction
+		//return a list of restrictions
+		return null;
+	}
 
 	/*
 	 * Extract the logical operators(AND/OR) from the query, if at all it is
