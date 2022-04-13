@@ -21,8 +21,14 @@ package com.stackroute.datamunger.query.parser;
  * the test cases together.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 public class QueryParser {
 
+	//does the below line allow us to basically set and get the variables in QParam?
+		//ie queryParamater.getFileName() --> is that its purpose?
 	private QueryParameter queryParameter = new QueryParameter();
 
 	/*
@@ -30,6 +36,14 @@ public class QueryParser {
 	 * QueryParameter class
 	 */
 	public QueryParameter parseQuery(String queryString) {
+		//ensures everything is lower case for ease down the line
+		queryString = queryString.toLowerCase();
+
+		//calling the setFileName setter in qPara class and passing logicMethod which takes in lower cased string
+		queryParameter.setFileName(getFileNameLogic(queryString));
+		queryParameter.setBaseQuery(getBaseQueryLogic(queryString));
+		queryParameter.setGroupByFields(getGroupByFieldsLogic(queryString));
+		queryParameter.setOrderByFields(getOrderByFieldsLogic(queryString));
 
 		return queryParameter;
 	}
@@ -38,6 +52,13 @@ public class QueryParser {
 	 * Extract the name of the file from the query. File name can be found after the
 	 * "from" clause.
 	 */
+	public String getFileNameLogic(String qString){
+		//splits at from
+		//take the second element which contains everything after from (including file name)
+		//then split this element by spaces
+		//take the second element of this bc there is a space before the filename presumably
+		return qString.split("from")[1].split(" ")[1];
+	}
 
 	/*
 	 * 
@@ -45,6 +66,9 @@ public class QueryParser {
 	 * baseQuery from the query string. BaseQuery contains from the beginning of the
 	 * query till the where clause
 	 */
+	public String getBaseQueryLogic(String qString){
+		return qString.split("where")[0].trim();
+	}
 
 	/*
 	 * extract the order by fields from the query string. Please note that we will
@@ -53,6 +77,18 @@ public class QueryParser {
 	 * data/ipl.csv order by city from the query mentioned above, we need to extract
 	 * "city". Please note that we can have more than one order by fields.
 	 */
+	public List<String> getOrderByFieldsLogic(String qString){
+		List<String> orderFields = new ArrayList<>();
+		String[] splitOrderArr = qString.split("order by");
+
+		for(int i = 0; i < splitOrderArr.length; i++){
+			if(i > 0)
+			{
+				orderFields.add(splitOrderArr[i].trim());
+			}
+		}
+		return orderFields;
+	}
 
 	/*
 	 * Extract the group by fields from the query string. Please note that we will
@@ -61,6 +97,25 @@ public class QueryParser {
 	 * data/ipl.csv group by city from the query mentioned above, we need to extract
 	 * "city". Please note that we can have more than one group by fields.
 	 */
+	public List<String> getGroupByFieldsLogic(String qString){
+		List<String> groupFields = new ArrayList<>();
+		//split by order by, then take that first index (0) and split by group by
+		//select winner,season,team2 from ipl.csv where season > 2014 group by winner order by team1
+		String[] splitOrderArr = qString.split("order by");
+		//{select winner,season,team2 from ipl.csv where season > 2014 group by winner | team1}
+		String[] splitGroupArr = splitOrderArr[0].split("group by");
+		//{select winner,season,team2 from ipl.csv where season > 2014 | winner}
+		System.out.println(qString);
+		//loops thru array, only take after index 0 bc that is where group by fields are
+		for(int i = 0; i < splitGroupArr.length; i++){
+			if(i > 0)
+			{
+				//{"winner"}
+				groupFields.add(splitGroupArr[i].trim());
+			}
+		}
+		return groupFields;
+	}
 
 	/*
 	 * Extract the selected fields from the query string. Please note that we will

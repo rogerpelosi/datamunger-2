@@ -8,15 +8,24 @@ import java.util.List;
  * fields, Query Type
  * */
 
+//obj rep for the query we process
+//here we give obj rep for the query
+
+//contain dif properties
+
 public class QueryParameter {
 
+	private String fileName;
 	public String getFileName() {
-		return null;
+		return fileName;
 	}
+	public void setFileName(String fileName) {this.fileName = fileName;}
 
+	private String baseQuery;
 	public String getBaseQuery() {
-		return null;
+		return baseQuery;
 	}
+	public void setBaseQuery(String baseQuery) {this.baseQuery = baseQuery;}
 
 	public List<Restriction> getRestrictions() {
 		return null;
@@ -34,11 +43,15 @@ public class QueryParameter {
 		return null;
 	}
 
+	private List<String> groupByFields;
 	public List<String> getGroupByFields() {
-		return null;
+		return groupByFields;
 	}
+	public void setGroupByFields(List<String> groupByFields){this.groupByFields = groupByFields;}
 
+	private List<String> orderByFields;
 	public List<String> getOrderByFields() {
-		return null;
+		return orderByFields;
 	}
+	public void setOrderByFields(List<String> orderByFields){this.orderByFields = orderByFields;}
 }
