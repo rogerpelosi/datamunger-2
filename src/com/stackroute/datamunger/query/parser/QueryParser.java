@@ -37,14 +37,14 @@ public class QueryParser {
 	 */
 	public QueryParameter parseQuery(String queryString) {
 		//ensures everything is lower case for ease down the line
-		queryString = queryString.toLowerCase();
+		String lowerCase = queryString.toLowerCase();
 
 		//calling the setFileName setter in qPara class and passing logicMethod which takes in lower cased string
-		queryParameter.setFileName(getFileNameLogic(queryString));
-		queryParameter.setBaseQuery(getBaseQueryLogic(queryString));
-		queryParameter.setGroupByFields(getGroupByFieldsLogic(queryString));
-		queryParameter.setOrderByFields(getOrderByFieldsLogic(queryString));
-		queryParameter.setFields(getFieldsLogic(queryString));
+		queryParameter.setFileName(getFileNameLogic(lowerCase));
+		queryParameter.setBaseQuery(getBaseQueryLogic(lowerCase));
+		queryParameter.setGroupByFields(getGroupByFieldsLogic(lowerCase));
+		queryParameter.setOrderByFields(getOrderByFieldsLogic(lowerCase));
+		queryParameter.setFields(getFieldsLogic(lowerCase));
 		queryParameter.setRestrictions(getRestrictionsLogic(queryString));
 
 		return queryParameter;
@@ -157,14 +157,40 @@ public class QueryParser {
 	 * Please consider this while parsing the conditions.
 	 * 
 	 */
-	public List<Restriction> getRestrictionsLogic(String qString){
-		Restriction restriction = new Restriction();
-		restriction.setCondition("xd");
-//		System.out.println(qString);
+	public List<Restriction> getRestrictionsLogic(String qString) {
+		List<Restriction> restrictionsList = new ArrayList<>();
+		String[] symbols = {"=", "<", ">", "!=", "<=", ">="};
+
+		//"select winner,season,team1,team2 from ipl.csv where season = 2014 and city ='bangalore'"
+		//String[] whereSplitArr = qString.split("where ");
+		//{select winner,season,team1,team2 from ipl.csv | season = 2014 and city ='bangalore'}
+		//String[] andOrSplitArr = whereSplitArr[1].split(" and | or ");
+		//{season = 2014 | city ='bangalore'}
+		if(qString.contains(" where ")){
+			String[] whereSplitArr = qString.split("where ");
+			String[] andOrSplitArr = whereSplitArr[1].split(" and | or ");
+			if (andOrSplitArr.length == 1) {
+				String singleRestrict = andOrSplitArr[0];
+				for (String symbol : symbols) {
+					if (singleRestrict.contains(symbol)) {
+						String[] conditionSplit = singleRestrict.trim().split(symbol);
+						restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim(), symbol));
+					}
+				}
+			} else if (andOrSplitArr.length > 1) {
+				for (String oneConditionOfMultiple : andOrSplitArr) {
+					for (String symbol : symbols) {
+						if (oneConditionOfMultiple.contains(symbol)) {
+							String[] conditionSplit = oneConditionOfMultiple.trim().split(symbol);
+							restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim().replace("'", ""), symbol));
+						}
+					}
+				}
+			}}
 		//can have multiple restrictions
-		//create a list of each restriction
+		//create a list of each restriction object
 		//return a list of restrictions
-		return null;
+		return restrictionsList;
 	}
 
 	/*
