@@ -106,7 +106,7 @@ public class QueryParser {
 	 * "city". Please note that we can have more than one group by fields.
 	 */
 	public List<String> getGroupByFieldsLogic(String qString){
-		System.out.println("GroupBy Clause Logic Triggered " + qString);
+		//System.out.println("GroupBy Clause Logic Triggered " + qString);
 		List<String> groupFields = new ArrayList<>();
 		//split by order by, then take that first index (0) and split by group by
 		//select winner,season,team2 from ipl.csv where season > 2014 group by winner order by team1
@@ -209,7 +209,14 @@ public class QueryParser {
 					for (String symbol : symbols) {
 						if (oneConditionOfMultiple.contains(symbol)) {
 							String[] conditionSplit = oneConditionOfMultiple.trim().split(symbol);
-							restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim().replace("'", ""), symbol));
+							String selectedValue = conditionSplit[1];
+							if (!selectedValue.contains("'")) {
+								restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim(), symbol));
+							} else if (selectedValue.contains("'")) {
+								String[] quoteSplit = selectedValue.split("'");
+
+								restrictionsList.add(new Restriction(conditionSplit[0].trim(), quoteSplit[1], symbol));
+							}
 						}
 					}
 				}
