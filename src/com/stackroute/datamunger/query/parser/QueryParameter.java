@@ -33,10 +33,11 @@ public class QueryParameter {
 	}
 	public void setRestrictions(List<Restriction> restrictions) {this.restrictions = restrictions;}
 
-	//----------------------------------
+	private List<String> logicalOperators;
 	public List<String> getLogicalOperators() {
-		return null;
+		return logicalOperators;
 	}
+	public void setLogicalOperators(List<String> logicalOperators){this.logicalOperators = logicalOperators;}
 
 	private List<String> fields;
 	public List<String> getFields() {
@@ -45,9 +46,11 @@ public class QueryParameter {
 	public void setFields(List<String> fields) {this.fields = fields;}
 
 	//----------------------------------
+	private List<AggregateFunction> aggregateFunctions;
 	public List<AggregateFunction> getAggregateFunctions() {
-		return null;
+		return aggregateFunctions;
 	}
+	public void setAggregateFunctions(List<AggregateFunction> aggregateFunctions){this.aggregateFunctions = aggregateFunctions;}
 
 	private List<String> groupByFields;
 	public List<String> getGroupByFields() {

@@ -46,6 +46,8 @@ public class QueryParser {
 		queryParameter.setOrderByFields(getOrderByFieldsLogic(lowerCase));
 		queryParameter.setFields(getFieldsLogic(lowerCase));
 		queryParameter.setRestrictions(getRestrictionsLogic(queryString));
+		queryParameter.setLogicalOperators(getLogicalOperatorsLogic(queryString));
+		queryParameter.setAggregateFunctions(getAggregateFunctionsLogic(queryString));
 
 		return queryParameter;
 	}
@@ -202,6 +204,21 @@ public class QueryParser {
 	 * The query mentioned above in the example should return a List of Strings
 	 * containing [or,and]
 	 */
+	public List<String> getLogicalOperatorsLogic(String qString){
+		List<String> operators = new ArrayList<>();
+
+		if(qString.contains(" where ")){
+			String[] whereSplitArr = qString.split("where ");
+			String[] spaceSplitArr = whereSplitArr[1].split(" ");
+			for(String word : spaceSplitArr){
+				if(word.trim().equals(("and")) || word.trim().equals("or")){
+					operators.add(word);
+				}
+			}
+		}
+
+		return operators;
+	}
 
 	/*
 	 * Extract the aggregate functions from the query. The presence of the aggregate
@@ -216,5 +233,41 @@ public class QueryParser {
 	 * 
 	 * 
 	 */
+	public List<AggregateFunction> getAggregateFunctionsLogic(String qString){
+		List<AggregateFunction> aggregateFunctionsList = new ArrayList<>();
+		String[] aggregateWords = {"min", "max", "sum", "count", "avg"};
+
+		//"select max(city),winner from ipl.csv where season > 2014 and city ='Bangalore' or city ='Delhi' group by winner"
+		//{ "" | max(city),winner from ipl.csv where season > 2014 and city ='Bangalore' or city ='Delhi' group by winner}
+		//{max(city),winner | ipl.csv where season > 2014 and city ='Bangalore' or city ='Delhi' group by winner}
+
+		String[] selectArr = qString.split("select ");
+		String[] fromArr = selectArr[1].split(" from ");
+		System.out.println("************ " + fromArr[0]);
+		for(String aggWord : aggregateWords){
+			if(fromArr[0].contains(aggWord)){
+				String[] array = fromArr[0].trim().split(aggWord);
+				//{"" | (city),winner} OR {"" | (city)}
+				if(!array[1].contains(",")){
+					aggregateFunctionsList.add(new AggregateFunction(array[1].substring(array[1].indexOf("(")+ 1,array[1].indexOf(")")), aggWord));
+				} else {
+					for(String splitItem: array){
+						if(splitItem.contains("(")){
+							aggregateFunctionsList.add(new AggregateFunction(splitItem.substring(splitItem.indexOf("(") + 1, splitItem.indexOf(")")), aggWord));
+						}
+					}
+
+				}
+
+				System.out.println("From Array split at: " + aggWord);
+				for(String arr: array){
+					System.out.print( arr + " | ");
+				}
+				System.out.println("");
+
+			}
+		}
+		return aggregateFunctionsList;
+	}
 
 }
