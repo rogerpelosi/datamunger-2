@@ -83,15 +83,19 @@ public class QueryParser {
 	 */
 	public List<String> getOrderByFieldsLogic(String qString){
 		List<String> orderFields = new ArrayList<>();
-		String[] splitOrderArr = qString.split("order by");
 
-		for(int i = 0; i < splitOrderArr.length; i++){
-			if(i > 0)
-			{
-				orderFields.add(splitOrderArr[i].trim());
+		if(qString.contains("order by")){
+			String[] splitOrderArr = qString.split("order by");
+			for(int i = 0; i < splitOrderArr.length; i++){
+				if(i > 0)
+				{
+					orderFields.add(splitOrderArr[i].trim());
+				}
 			}
+			return orderFields;
 		}
-		return orderFields;
+
+		return null;
 	}
 
 	/*
@@ -102,23 +106,44 @@ public class QueryParser {
 	 * "city". Please note that we can have more than one group by fields.
 	 */
 	public List<String> getGroupByFieldsLogic(String qString){
+		System.out.println("GroupBy Clause Logic Triggered " + qString);
 		List<String> groupFields = new ArrayList<>();
 		//split by order by, then take that first index (0) and split by group by
 		//select winner,season,team2 from ipl.csv where season > 2014 group by winner order by team1
-		String[] splitOrderArr = qString.split("order by");
+		//String[] splitOrderArr = qString.split("order by");
 		//{select winner,season,team2 from ipl.csv where season > 2014 group by winner | team1}
-		String[] splitGroupArr = splitOrderArr[0].split("group by");
+		//String[] splitGroupArr = splitOrderArr[0].split("group by");
 		//{select winner,season,team2 from ipl.csv where season > 2014 | winner}
 //		System.out.println(qString);
 		//loops thru array, only take after index 0 bc that is where group by fields are
-		for(int i = 0; i < splitGroupArr.length; i++){
-			if(i > 0)
-			{
-				//{"winner"}
-				groupFields.add(splitGroupArr[i].trim());
+		if(qString.contains("order by")){
+			String[] splitOrderArr = qString.split("order by");
+			if(splitOrderArr[0].contains("group by")){
+				String[] splitGroupArr = splitOrderArr[0].split("group by");
+				for(int i = 0; i < splitGroupArr.length; i++){
+					if(i > 0)
+					{
+						//{"winner"}
+						groupFields.add(splitGroupArr[i].trim());
+					}
+				}
+				return groupFields;
 			}
 		}
-		return groupFields;
+		else if(qString.contains("group by")){
+			String[] splitGroupArr = qString.split("group by");
+			for(int i = 0; i < splitGroupArr.length; i++){
+				if(i > 0)
+				{
+					//{"winner"}
+					groupFields.add(splitGroupArr[i].trim());
+				}
+			}
+			return groupFields;
+		}
+
+		return null;
+
 	}
 
 	/*
@@ -188,11 +213,13 @@ public class QueryParser {
 						}
 					}
 				}
-			}}
+			}
+			return restrictionsList;
+		}
 		//can have multiple restrictions
 		//create a list of each restriction object
 		//return a list of restrictions
-		return restrictionsList;
+		return null;
 	}
 
 	/*
@@ -215,9 +242,10 @@ public class QueryParser {
 					operators.add(word);
 				}
 			}
+			return operators;
 		}
 
-		return operators;
+		return null;
 	}
 
 	/*
@@ -235,7 +263,8 @@ public class QueryParser {
 	 */
 	public List<AggregateFunction> getAggregateFunctionsLogic(String qString){
 		List<AggregateFunction> aggregateFunctionsList = new ArrayList<>();
-		String[] aggregateWords = {"min", "max", "sum", "count", "avg"};
+		//String[] aggregateWords = {"min", "max", "sum", "count", "avg"};
+		String[] aggregateWords = {"count", "avg", "min", "max", "sum"};
 
 		//"select max(city),winner from ipl.csv where season > 2014 and city ='Bangalore' or city ='Delhi' group by winner"
 		//{ "" | max(city),winner from ipl.csv where season > 2014 and city ='Bangalore' or city ='Delhi' group by winner}
@@ -243,7 +272,7 @@ public class QueryParser {
 
 		String[] selectArr = qString.split("select ");
 		String[] fromArr = selectArr[1].split(" from ");
-		System.out.println("************ " + fromArr[0]);
+		//System.out.println("************ " + fromArr[0]);
 		for(String aggWord : aggregateWords){
 			if(fromArr[0].contains(aggWord)){
 				String[] array = fromArr[0].trim().split(aggWord);
@@ -253,7 +282,9 @@ public class QueryParser {
 				} else {
 					for(String splitItem: array){
 						if(splitItem.contains("(")){
-							aggregateFunctionsList.add(new AggregateFunction(splitItem.substring(splitItem.indexOf("(") + 1, splitItem.indexOf(")")), aggWord));
+							if(splitItem.indexOf("(") -1 == -1) {
+								aggregateFunctionsList.add(new AggregateFunction(splitItem.substring(splitItem.indexOf("(") + 1, splitItem.indexOf(")")), aggWord));
+							}
 						}
 					}
 
